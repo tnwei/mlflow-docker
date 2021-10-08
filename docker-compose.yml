@@ -1,0 +1,54 @@
+version: "3"
+
+networks:
+  experiment-tracking: 
+    external: false
+
+services: 
+  mlflow:
+    container_name: mlflow
+    build:
+      context: .
+    networks:
+    - experiment-tracking
+    command: mlflow server --backend-store-uri postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB} --host 0.0.0.0 --default-artifact-root s3://${PROJECT_BUCKET_NAME}/
+    environment:
+    # Env vars in .env stop at docker-compose.yml, need to be explicitly passed to containers
+    - AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
+    - AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
+    - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+
+    ports: 
+    - "3000:5000" # map mlflow's default 5000 to desired port
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    networks:
+    - experiment-tracking
+    volumes:
+    - ./minio-data:/data
+    environment:
+    - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+    - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+    - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+    - "3001:9000" # port to interact w/ minio
+    - "3002:9001" # port to login to minio dashboard
+    command: minio server /data --console-address ":9001"
+
+  db:
+    image: postgres:10-alpine
+    container_name: db
+    networks:
+    - experiment-tracking
+    volumes:
+      - ./mlflow-data:/var/lib/postgresql/data
+    # Use non-root user, else the folder inherits root access only from /var/lib/postgresql/data
+    # user: ${DB_USER}
+    # More hassle to configure, forget about it
+    environment:
+    - POSTGRES_DB=${POSTGRES_DB}
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
