@@ -1,16 +1,16 @@
 # mlflow-docker
 
-This repo configures an MLflow tracking server + Minio artifact store as Docker containers, organized with `docker-compose`. Use this repo for standalone experiment tracking for multiple projects, or for plug-and-play experiment tracking with existing machine learning project repos via `git submodule`.
+This repo configures an MLflow tracking server + Minio artifact store as Docker containers, organized with `docker-compose`. 
 
 ## Motivation
 
-Self-hosted experiment tracking that can be rolled out consistently over multiple projects, as an on-prem alternative to services like Weights & Biases or Comet.ml.
+Self-hosted experiment tracking that is quick to set up, and can be rolled out consistently over multiple projects. Serves as an on-prem alternative to services like Weights & Biases or Comet.ml.
 
 ## Setup
 
-1. For standalone use, run `git clone https://github.com/tnwei/mlflow-docker`. For integration with an existing ML project repo, `cd` to the ML project repo and run `git submodule add https://github.com/tnwei/mlflow-docker`. 
+1. `git clone` this repo. I personally clone directly into existing ML project repos for project-specific use.
 2. `cd` into `mlflow-docker`, and change environment variables in `.env` as required. Then run `docker-compose up -d`.
-3. Access the Minio console (defaults to `http://localhost:3002`) and create the bucket with the name specified in `.env` (defaults to `my-mlflow-bucket`).
+3. Access the Minio console (defaults to `http://localhost:3002`) and create the storage bucket with the name specified in `.env` (defaults to `my-mlflow-bucket`).
 4. Configure local MLflow to have the same env vars in the bottom section of `.env`
 5. Run the test script from your local setup and verify your installation is working.
 6. Enjoy! 
