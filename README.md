@@ -8,8 +8,8 @@ Self-hosted experiment tracking that can be rolled out consistently over multipl
 
 ## Setup
 
-1. For standalone use, `git clone` this repo. For integration with an existing ML project repo, `cd` to the ML project repo and `git submodule` this repo. 
-2. Changes environment variables in `.env` as needed, then run `docker-compose up -d` from within this repo dir.
+1. For standalone use, run `git clone https://github.com/tnwei/mlflow-docker`. For integration with an existing ML project repo, `cd` to the ML project repo and run `git submodule add https://github.com/tnwei/mlflow-docker`. 
+2. `cd` into `mlflow-docker`, and change environment variables in `.env` as required. Then run `docker-compose up -d`.
 3. Access the Minio console (defaults to `http://localhost:3002`) and create the bucket with the name specified in `.env` (defaults to `my-mlflow-bucket`).
 4. Configure local MLflow to have the same env vars in the bottom section of `.env`
 5. Run the test script from your local setup and verify your installation is working.
@@ -31,7 +31,7 @@ When run, the services will create folders `minio-data/` and `mlflow-data/`.
 
 **Multiple users**: If shared between multiple users, it would be prudent to create individual key-secret pairs for each user from the Minio console. Probably also want to consider adding `nginx` for load balancing.
 
-**Removing output folders**:  If you don't want the `minio-data/` and `mlflow-data/` folders to be created, you can opt to mount them as Docker volumes instead.
+**Project isolation**: Container data is mounted locally on disk to save hassle. If they are mounted as Docker volumes instead, tracking multiple projects would warrant unique volume names for each project. 
 
 **Why local MLflow needs setting up env vars**: Local MLflow needs to have env vars to access the Minio server, because artifacts are logged directly to the artifact store instead of through the tracking server. The MLflow devs are working on logging artifacts directly through the tracking server, progress tracked in [this PR](https://github.com/mlflow/mlflow/issues/629).
 
